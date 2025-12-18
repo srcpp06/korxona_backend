@@ -1,6 +1,7 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.engine.url import make_url
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
@@ -12,21 +13,56 @@ DATABASE_URL = (
     f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
+# =========================
+# DATABASE URL
+# =========================
+
+if not DATABASE_URL:
+    raise RuntimeError("❌ DATABASE_URL topilmadi (Railway env o‘rnatilmagan)")
+
+# Railway ba'zida mysql:// beradi, SQLAlchemy esa mysql+pymysql:// kutadi
+url = make_url(DATABASE_URL)
+
+if url.drivername == "mysql":
+    url = url.set(drivername="mysql+pymysql")
+
+DATABASE_URL = str(url)
+
+# =========================
+# ENGINE
+# =========================
 
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True
+    pool_pre_ping=True,      # uzilgan connectionlarni tekshiradi
+    pool_recycle=1800,       # Railway timeout muammosi uchun
+    echo=False               # True qilsang SQL log chiqadi
 )
 
+# =========================
+# SESSION
+# =========================
+
 SessionLocal = sessionmaker(
+    bind=engine,
     autocommit=False,
-    autoflush=False,
-    bind=engine
+    autoflush=False
 )
+
+# =========================
+# BASE
+# =========================
 
 Base = declarative_base()
 
+# =========================
+# DEPENDENCY
+# =========================
+
 def get_db():
+    """
+    FastAPI dependency
+    """
     db = SessionLocal()
     try:
         yield db
