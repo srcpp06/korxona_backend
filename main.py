@@ -1,21 +1,10 @@
-from fastapi import FastAPI, Depends
-from database import get_db
-from crud import get_clients, get_materials
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import FastAPI
+from routers import router
+import models
+from database import engine
 
-app = FastAPI()
+models.Base.metadata.create_all(bind=engine)
 
+app = FastAPI(title="Production Backend")
 
-@app.get("/")
-async def root():
-    return {"status": "OK", "db": "railway-mysql"}
-
-
-@app.get("/clients")
-async def clients(db: AsyncSession = Depends(get_db)):
-    return await get_clients(db)
-
-
-@app.get("/materials")
-async def materials(db: AsyncSession = Depends(get_db)):
-    return await get_materials(db)
+app.include_router(router)

@@ -1,13 +1,27 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from models import Client, Material
+from sqlalchemy.orm import Session
+import models
+
+def create_client(db: Session, data):
+    client = models.Client(**data.dict())
+    db.add(client)
+    db.commit()
+    db.refresh(client)
+    return client
 
 
-async def get_clients(db: AsyncSession):
-    result = await db.execute(select(Client))
-    return result.scalars().all()
+def material_kirim(db: Session, material_id, qty):
+    stock = db.query(models.MaterialStock).get(material_id)
+    if not stock:
+        stock = models.MaterialStock(material_id=material_id, quantity=0)
+        db.add(stock)
 
+    stock.quantity += qty
 
-async def get_materials(db: AsyncSession):
-    result = await db.execute(select(Material))
-    return result.scalars().all()
+    log = models.MaterialLog(
+        material_id=material_id,
+        change_qty=qty,
+        reason="kirim"
+    )
+
+    db.add(log)
+    db.commit()

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from decimal import Decimal
 
 class ClientCreate(BaseModel):
     company_name: str
@@ -6,14 +7,12 @@ class ClientCreate(BaseModel):
 
 class ClientOut(ClientCreate):
     id: int
+
     class Config:
         from_attributes = True
 
-class MaterialCreate(BaseModel):
-    name: str
-    unit: str | None = None
 
-class MaterialOut(MaterialCreate):
-    id: int
-    class Config:
-        from_attributes = True
+class MaterialInOut(BaseModel):
+    material_id: int
+    quantity: Decimal
+    reason: str
