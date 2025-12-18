@@ -20,18 +20,6 @@ DATABASE_URL = (
 if not DATABASE_URL:
     raise RuntimeError("❌ DATABASE_URL topilmadi (Railway env o‘rnatilmagan)")
 
-# Railway ba'zida mysql:// beradi, SQLAlchemy esa mysql+pymysql:// kutadi
-url = make_url(DATABASE_URL)
-
-if url.drivername == "mysql":
-    url = url.set(drivername="mysql+pymysql")
-
-DATABASE_URL = str(url)
-
-# =========================
-# ENGINE
-# =========================
-
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,      # uzilgan connectionlarni tekshiradi

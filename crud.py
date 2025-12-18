@@ -4,6 +4,8 @@ from datetime import date
 
 from . import models
 
+from app.database import engine
+from app import models
 # =====================================================
 # CLIENT CRUD
 # =====================================================

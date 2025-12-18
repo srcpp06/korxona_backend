@@ -3,6 +3,9 @@ from typing import Optional, List
 from datetime import date, datetime
 from decimal import Decimal
 
+from app.database import engine
+from app import models
+
 # =========================
 # CLIENT
 # =========================

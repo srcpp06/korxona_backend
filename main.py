@@ -1,54 +1,46 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .database import engine
-from . import models
-from .routers import router as api_router
+from app.database import engine
+from app import models
+from app.routers import router
 
 # =========================
-# CREATE TABLES
+# APP INIT
 # =========================
-# Eslatma:
-# Agar Railway MySQL’da jadval allaqachon mavjud bo‘lsa
-# bu qator hech narsa buzmaydi
-
-models.Base.metadata.create_all(bind=engine)
-
-# =========================
-# APP
-# =========================
-
 app = FastAPI(
-    title="Factory Management Backend",
-    description="Client, Material, Product, Worker va Ombor boshqaruvi",
-    version="1.0.0"
+    title="Production Management API",
+    version="1.0.0",
+    description="Clients, materials, products, workers management system"
 )
 
 # =========================
-# CORS
+# CORS (frontend uchun)
 # =========================
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # keyin frontend domen bilan cheklaysan
+    allow_origins=["*"],  # keyin frontend domen bilan cheklaysan
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # =========================
+# STARTUP EVENT
+# =========================
+@app.on_event("startup")
+def on_startup():
+    # ⚠️ IMPORT VAQTIDA EMAS!
+    models.Base.metadata.create_all(bind=engine)
+
+# =========================
 # ROUTERS
 # =========================
-
-app.include_router(api_router)
+app.include_router(router)
 
 # =========================
-# ROOT
+# HEALTH CHECK
 # =========================
-
 @app.get("/")
 def root():
-    return {
-        "status": "OK",
-        "message": "Backend ishlayapti 🚀"
-    }
+    return {"status": "ok", "message": "Backend is running"}
