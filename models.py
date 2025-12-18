@@ -17,9 +17,6 @@ class Client(Base):
     address = Column(String(255))
     created_at = Column(TIMESTAMP, default=datetime.datetime.utcnow)
 
-    products = relationship("Product", back_populates="client")
-
-
 class Material(Base):
     __tablename__ = "materials"
 
@@ -29,45 +26,44 @@ class Material(Base):
     unit = Column(String(20))
     min_stock = Column(DECIMAL(10,2), default=0)
 
-    stock = relationship("MaterialStock", uselist=False)
-    logs = relationship("MaterialLog")
-
-
 class MaterialStock(Base):
     __tablename__ = "material_stock"
 
     material_id = Column(Integer, ForeignKey("materials.id"), primary_key=True)
     quantity = Column(DECIMAL(10,2), default=0)
 
-    material = relationship("Material")
-
-
 class MaterialLog(Base):
     __tablename__ = "material_logs"
 
     id = Column(Integer, primary_key=True)
-    material_id = Column(Integer, ForeignKey("materials.id"))
+    material_id = Column(Integer)
     change_qty = Column(DECIMAL(10,2))
     reason = Column(Enum("kirim","chiqim","ishlab_chiqarish"))
-
-
-class Worker(Base):
-    __tablename__ = "workers"
-
-    id = Column(Integer, primary_key=True)
-    full_name = Column(String(100), nullable=False)
-    position = Column(String(50))
-    salary_type = Column(Enum("oylik","dona"))
-    salary_amount = Column(DECIMAL(10,2))
-    active = Column(Integer, default=1)
-
 
 class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
-    client_id = Column(Integer, ForeignKey("clients.id"))
+    model_code = Column(String(50))
+    size = Column(String(20))
+    color = Column(String(30))
+    client_id = Column(Integer)
     price = Column(DECIMAL(10,2))
 
-    client = relationship("Client", back_populates="products")
+class ProductMaterial(Base):
+    __tablename__ = "product_materials"
+
+    product_id = Column(Integer, primary_key=True)
+    material_id = Column(Integer, primary_key=True)
+    qty_required = Column(DECIMAL(10,2))
+
+class Worker(Base):
+    __tablename__ = "workers"
+
+    id = Column(Integer, primary_key=True)
+    full_name = Column(String(100))
+    position = Column(String(50))
+    salary_type = Column(Enum("oylik","dona"))
+    salary_amount = Column(DECIMAL(10,2))
+    active = Column(Integer, default=1)

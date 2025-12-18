@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 from routers import router
-import models
-from database import engine
 
-models.Base.metadata.create_all(bind=engine)
-
-app = FastAPI(title="Production Backend")
+app = FastAPI(
+    title="Production Management Backend",
+    version="1.0"
+)
 
 app.include_router(router)
